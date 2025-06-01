@@ -16,7 +16,6 @@ class studentRecord(models.Model):
     address = models.CharField(max_length=255)
     dateOfBirth = models.DateField()
     gender = models.CharField(max_length=255)
-    profilePicture = models.ImageField(upload_to='profile_pictures/')
 
     def __str__(self):
         return self.name

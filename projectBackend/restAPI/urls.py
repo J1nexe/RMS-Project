@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin # type: ignore
 from django.urls import path # type: ignore
-from .views import UserList, studentRecordList
+from .views import UserList, studentRecordList, studentRecordDetail
 
 urlpatterns = [
     path('users/', UserList.as_view(), name='user-list'),
     path('student-records/', studentRecordList.as_view(), name='student-record-list'),
+    path('student-records/<int:pk>/', studentRecordDetail.as_view(), name='student-record-detail'),
 ]
