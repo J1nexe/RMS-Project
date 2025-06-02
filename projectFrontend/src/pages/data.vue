@@ -23,6 +23,7 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Student ID</th>
                 <th>Name</th>
                 <th>Course</th>
                 <th>Year & Section</th>
@@ -53,6 +54,7 @@
               </tr>
               <tr v-for="student in paginatedStudents" :key="student.id" class="student-row">
                 <td>{{ student.id }}</td>
+                <td>{{ student.studentID }}</td>
                 <td>{{ student.name }}</td>
                 <td>{{ student.course }}</td>
                 <td>{{ student.yearAndSection }}</td>
@@ -190,7 +192,7 @@ const STUDENT_RECORDS_API_URL = 'http://localhost:8000/api/student-records/';
 const students = ref([]);
 const searchQuery = ref('');
 const currentPage = ref(1);
-const itemsPerPage = 5;
+const itemsPerPage = 10;
 
 const showModal = ref(false);
 const isEditing = ref(false);
@@ -496,46 +498,68 @@ watch(students, () => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* CSS Variables for Theme */
+:root {
+  --primary-color: #4A4AFF;
+  --primary-hover-color: #3939CC;
+  --accent-color: #00C853;
+  --accent-hover-color: #00A844;
+  --background-color: #F0F2F5;
+  --content-bg-color: #FFFFFF;
+  --text-primary-color: #000000;
+  --text-secondary-color: #333333;
+  --border-color: #CCCCCC;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --danger-hover-color: #c82333;
+  --warning-color: #ffc107;
+  --button-border-radius: 8px;
+  --card-border-radius: 12px;
+  --box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  --box-shadow-light: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
 /* Overall page structure */
 .data-page-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
-  background-color: #eef1f5;
-  position: relative;
+  background-color: var(--background-color);
+  font-family: 'Poppins', sans-serif;
+  color: #333; /* Dark gray text color for better visibility */
 }
 
 .content-below-navbar {
-  padding: 80px 20px 20px;
+  padding: 20px; /* Reduced top padding as navbar might provide its own */
   flex: 1;
   display: flex;
   width: 100%;
   justify-content: center;
   align-items: flex-start;
+  padding-top: 80px; /* Assuming navbar height is around 60-80px */
 }
 
 /* Main content area */
 .page-content {
-  font-family: 'Poppins', sans-serif;
   width: 100%;
-  max-width: 1400px; /* Set a max-width for larger screens */
+  max-width: 1400px;
   margin: 0 auto;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--content-bg-color);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
   display: flex;
   flex-direction: column;
-  padding: 25px;
+  padding: 30px;
   box-sizing: border-box;
-  min-height: calc(100vh - 100px); /* Adjust based on navbar height */
+  min-height: calc(100vh - 120px); /* Adjust based on navbar and padding */
 }
 
 h1 {
   text-align: center;
-  color: #2c3e50;
-  margin-bottom: 25px;
-  font-size: 2rem;
+  color: var(--text-primary-color);
+  margin-bottom: 30px;
+  font-size: 2.2rem;
   font-weight: 600;
 }
 
@@ -543,208 +567,169 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px;
   width: 100%;
 }
 
 .search-input {
-  padding: 12px 15px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
+  padding: 12px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--button-border-radius);
   width: 100%;
-  max-width: 320px;
+  max-width: 350px;
   font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: var(--text-primary-color);
+  background-color: #FFFFFF;
 }
 
 .search-input::placeholder {
-  color: #888;
-  opacity: 1;
+  color: var(--text-secondary-color);
+  opacity: 0.8;
 }
 
-.add-student-btn {
-  padding: 12px 22px;
-  background-color: #28a745;
-  color: white;
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 74, 255, 0.15);
+}
+
+.add-student-btn,
+.save-btn {
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #4A4AFF 0%, #8C4AFF 100%);
+  color: #FFFFFF;
   border: none;
-  border-radius: 6px;
+  border-radius: 25px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(74, 74, 255, 0.2);
+  display: inline-block;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .add-student-btn:hover {
-  background-color: #218838;
+  background-color: #3939CC;  /* Darker blue on hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Table container */
 .table-scroll-wrapper {
   width: 100%;
-  overflow-x: auto;
   margin: 0;
   padding: 0;
 }
 
 .students-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-  background-color: #fff;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .students-table th,
 .students-table td {
-  padding: 12px 15px;
+  padding: 16px;
   text-align: left;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-/* Column widths */
-.students-table th:nth-child(1), /* ID */
-.students-table td:nth-child(1) {
-  width: 5%;
-  min-width: 50px;
-}
-
-.students-table th:nth-child(2), /* Name */
-.students-table td:nth-child(2) {
-  width: 15%;
-  min-width: 120px;
-}
-
-.students-table th:nth-child(3), /* Course */
-.students-table td:nth-child(3) {
-  width: 15%;
-  min-width: 120px;
-}
-
-.students-table th:nth-child(4), /* Year & Section */
-.students-table td:nth-child(4) {
-  width: 10%;
-  min-width: 100px;
-}
-
-.students-table th:nth-child(5), /* Contact Number */
-.students-table td:nth-child(5) {
-  width: 12%;
-  min-width: 120px;
-}
-
-.students-table th:nth-child(6), /* Address */
-.students-table td:nth-child(6) {
-  width: 20%;
-  min-width: 150px;
-}
-
-.students-table th:nth-child(7), /* Date of Birth */
-.students-table td:nth-child(7) {
-  width: 12%;
-  min-width: 120px;
-}
-
-.students-table th:nth-child(8), /* Gender */
-.students-table td:nth-child(8) {
-  width: 8%;
-  min-width: 80px;
-}
-
-.students-table th:nth-child(9), /* Actions */
-.students-table td:nth-child(9) {
-  width: 10%;
-  min-width: 100px;
-}
-
-.students-table td {
+  border-bottom: 1px solid #edf2f7;
+  border-right: 1px solid #edf2f7;
   color: #333;
-  font-size: 0.95rem;
 }
 
 .students-table th {
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #4A4AFF 0%, #8C4AFF 100%);
+  color: white;
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.5px;
-  color: #495057;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+}
+
+.student-row:nth-child(even) {
+  background-color: #F8F9FA;
 }
 
 .student-row:hover {
-  background-color: #e9ecef !important;
-  transition: background-color 0.2s ease;
+  background-color: #f5f5f5;
 }
 
 .actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  align-items: center;
 }
 
 .action-btn {
-  padding: 6px 12px;
+  padding: 8px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 0.875rem;
+  margin: 0 4px;
+  color: white;
+  font-size: 0.85rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .edit-btn {
-  background-color: #ffc107;
-  color: #212529;
+  background-color: #28a745;
 }
 
 .edit-btn:hover {
-  background-color: #e0a800;
+  background-color: #0056b3;
 }
 
 .delete-btn {
   background-color: #dc3545;
-  color: white;
 }
 
 .delete-btn:hover {
-  background-color: #c82333;
+  background-color: var(--danger-hover-color);
 }
 
 .no-data {
   text-align: center;
-  padding: 30px 20px;
-  color: #6c757d;
-  font-style: italic;
-  font-size: 1.1rem;
+  padding: 2rem;
+  color: #666;
 }
 
 .error-message {
-  color: #dc3545;
+  color: var(--danger-color);
   font-weight: 500;
 }
 
 /* Pagination */
 .pagination {
+  margin-top: 1rem;
   display: flex;
-  justify-content: center;
+  gap: 1rem;
   align-items: center;
-  gap: 12px;
-  margin-top: 20px;
+  justify-content: center;
+  color: #333;
 }
 
 .pagination-btn {
-  padding: 8px 16px;
   background-color: #007bff;
   color: white;
   border: none;
+  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .pagination-btn:disabled {
-  background-color: #ced4da;
+  background-color: #ccc;
   cursor: not-allowed;
 }
 
@@ -756,21 +741,26 @@ h1 {
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.6);
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.75); /* Darker overlay */
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
 .modal-content {
-  background-color: #fff;
-  padding: 30px;
+  background-color: #ffffff; /* Solid white background */
+  padding: 30px 35px;
   border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   width: 90%;
-  max-width: 550px;
+  max-width: 500px;
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: #333;
+  border: 1px solid #e0e0e0;
 }
 
 .close-btn {
@@ -783,167 +773,134 @@ h1 {
   color: #666;
   transition: color 0.2s;
   line-height: 1;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f8f9fa;
 }
 
 .close-btn:hover {
   color: #333;
+  background-color: #e9ecef;
 }
 
 .modal h2 {
   margin-top: 0;
   margin-bottom: 25px;
   text-align: center;
-  color: #2c3e50;
+  color: #333;
   font-size: 1.8rem;
+  font-weight: 600;
   padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .form-group {
-  margin-bottom: 22px;
-  position: relative;
+  margin-bottom: 20px;
+  background-color: #ffffff;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 8px;
+  color: #333;
   font-weight: 500;
-  color: #444;
   font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #ced4da;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background-color: #fff;
   color: #333;
-  height: 45px; /* Fixed height for consistency */
-  line-height: normal;
-  -webkit-appearance: none; /* Remove default styles */
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* Special styling for date input */
-.form-group input[type="date"] {
-  padding-right: 15px; /* Space for the calendar icon */
-}
-
-/* Custom select arrow */
-.form-group select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23495057' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-  padding-right: 40px; /* Space for the arrow */
+  background-color: #ffffff;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #80bdff;
+  border-color: #4A4AFF;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+  box-shadow: 0 0 0 3px rgba(74, 74, 255, 0.15);
 }
 
 .form-group input::placeholder {
-  color: #6c757d;
-  opacity: 0.8;
-}
-
-/* Remove default select arrow in IE */
-.form-group select::-ms-expand {
-  display: none;
-}
-
-/* Style for select options */
-.form-group select option {
-  padding: 12px;
-  font-size: 1rem;
-  color: #333;
-  background-color: #fff;
+  color: #999;
 }
 
 .save-btn {
-  width: 100%;
-  padding: 14px;
-  background-color: #28a745;
+  background-color: #4A4AFF;
   color: white;
   border: none;
+  padding: 12px 20px;
   border-radius: 6px;
-  font-size: 1.05rem;
-  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-top: 10px;
-  height: 48px;
+  width: 100%;
+  margin-top: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.save-btn:hover {
-  background-color: #218838;
+.save-btn:hover:not(:disabled) {
+  background-color: #3939CC;
+  transform: translateY(-1px);
 }
 
 .save-btn:disabled {
-  background-color: #6c757d;
+  background-color: #B0BEC5;
   cursor: not-allowed;
   opacity: 0.7;
+  transform: none;
+  box-shadow: none;
 }
 
 .modal-error-message {
   color: #dc3545;
-  font-size: 0.9em;
-  margin: 15px 0;
+  margin-top: 15px;
   text-align: center;
   padding: 10px;
-  background-color: rgba(220, 53, 69, 0.1);
-  border-radius: 4px;
-  font-weight: 500;
+  background-color: #fff5f5;
+  border-radius: 6px;
+  font-size: 0.9rem;
 }
 
 /* API error alert styles */
 .api-error-alert {
   background-color: #fff3cd;
   color: #856404;
-  padding: 15px;
-  margin-bottom: 25px;
-  border: 1px solid #ffeeba;
-  border-radius: 6px;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
 .retry-btn {
-  background-color: #856404;
+  background-color: #007bff;
   color: white;
   border: none;
-  padding: 8px 15px;
+  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
-  white-space: nowrap;
-}
-
-.retry-btn:hover {
-  background-color: #6d5204;
 }
 
 .loading-spinner {
-  display: inline-block;
-  width: 22px;
-  height: 22px;
-  margin-right: 12px;
   border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border-top: 3px solid #007bff;
   border-radius: 50%;
+  width: 24px;
+  height: 24px;
   animation: spin 1s linear infinite;
+  margin: 0 auto;
+  margin-bottom: 1rem;
 }
 
 @keyframes spin {
@@ -954,36 +911,34 @@ h1 {
 /* Responsive styles */
 @media (max-width: 1024px) {
   .content-below-navbar {
-    padding: 80px 10px 20px;
+    padding: 80px 15px 15px;
   }
   
-  .table-scroll-wrapper {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    overflow-x: auto;
-  }
-
-  .students-table {
-    min-width: 800px; /* Ensure table doesn't shrink too much */
+  .page-content {
+    padding: 20px;
   }
 
   .students-table th,
   .students-table td {
     padding: 12px 10px;
-    font-size: 0.9rem;
+    font-size: 0.9rem; /* Slightly smaller font for smaller screens */
   }
 }
 
 @media (max-width: 768px) {
   .content-below-navbar {
-    padding: 70px 0 0;
+    padding: 70px 0 0; /* No side padding, let page-content handle it */
   }
 
   .page-content {
-    padding: 15px;
-    border-radius: 0;
+    padding: 20px; /* Uniform padding */
+    border-radius: 0; /* Full width on mobile */
     min-height: calc(100vh - 70px);
+    box-shadow: none; /* Remove shadow on mobile for edge-to-edge */
+  }
+
+  h1 {
+    font-size: 1.8rem;
   }
 
   .controls {
@@ -999,17 +954,35 @@ h1 {
   }
   
   .modal-content {
-    padding: 20px;
-    width: 95%;
+    padding: 20px 25px;
+    width: 100%;
+    max-width: calc(100% - 30px); /* Some margin from screen edges */
+    margin: auto;
+    max-height: 85vh;
+  }
+
+  .modal h2 {
+    font-size: 1.6rem;
   }
 
   .api-error-alert {
     flex-direction: column;
     align-items: stretch;
+    padding: 15px;
   }
 
   .retry-btn {
     width: 100%;
+    padding: 10px;
+  }
+
+  .action-btn {
+    padding: 6px 10px; /* Smaller buttons on mobile */
+    font-size: 0.8rem;
+  }
+
+  .actions {
+    gap: 6px;
   }
 }
 </style>
