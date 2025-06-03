@@ -9,52 +9,85 @@
       <!-- Center: Navigation Links -->
       <div class="navbar-center">
         <router-link to="/home" class="nav-link">Home</router-link>
-        <router-link to="/records" class="nav-link">Records</router-link>
-        <!-- Add more links as needed -->
-        <router-link to="/settings" class="nav-link">Settings</router-link>
+        <router-link to="/data" class="nav-link">Records</router-link>
       </div>
   
       <!-- Right: Avatar, Name, Dropdown -->
       <div class="navbar-right">
-        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Avatar" class="avatar" />
-        <span class="user-name">John Doe</span>
-        <div class="dropdown" @click="toggleDropdown" :class="{ 'open': dropdownOpen }">
-          <button class="dropdown-btn">
+        <img :src="userAvatar" alt="Avatar" class="avatar" />
+        <span class="user-name">{{ userName }}</span>
+        <div class="dropdown" ref="dropdownRef">
+          <button class="dropdown-btn" @click="toggleDropdown">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down">
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </button>
-          <transition name="dropdown-fade">
-            <div v-if="dropdownOpen" class="dropdown-menu">
-              <a href="#" class="dropdown-item">Account Settings</a>
-              <a href="#" class="dropdown-item">Preferences</a>
-              <hr class="dropdown-divider" />
-              <a href="#" class="dropdown-item logout">Logout</a>
-            </div>
-          </transition>
+          <div v-show="dropdownOpen" class="dropdown-menu">
+            <a @click="handleAccountSettings" class="dropdown-item">Account Settings</a>
+            <a @click="handlePreferences" class="dropdown-item">Preferences</a>
+            <hr class="dropdown-divider" />
+            <a @click="handleLogout" class="dropdown-item logout">Logout</a>
+          </div>
         </div>
       </div>
     </nav>
   </template>
   
   <script setup>
-  import { ref } from 'vue'
+  import { ref, onMounted, onUnmounted, computed } from 'vue'
+  import { useRouter } from 'vue-router'
   
+  const router = useRouter()
   const dropdownOpen = ref(false)
+  const dropdownRef = ref(null)
   
+  const userEmail = computed(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    return user.email || 'User'
+  })
+  
+  const userAvatar = ref('https://randomuser.me/api/portraits/men/32.jpg')
+  
+  // Toggle dropdown
   const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value
   }
   
-  // Optional: Close dropdown when clicking outside
-  // import { onMounted, onUnmounted } from 'vue'
-  // const closeDropdownOnClickOutside = (event) => {
-  //   if (dropdownOpen.value && !event.target.closest('.dropdown')) {
-  //     dropdownOpen.value = false;
-  //   }
-  // }
-  // onMounted(() => document.addEventListener('click', closeDropdownOnClickOutside))
-  // onUnmounted(() => document.removeEventListener('click', closeDropdownOnClickOutside))
+  // Close dropdown when clicking outside
+  const closeDropdownOnClickOutside = (event) => {
+    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+      dropdownOpen.value = false
+    }
+  }
+  
+  // Handle dropdown menu items
+  const handleAccountSettings = () => {
+    dropdownOpen.value = false
+    // Add account settings logic here
+  }
+  
+  const handlePreferences = () => {
+    dropdownOpen.value = false
+    // Add preferences logic here
+  }
+  
+  const handleLogout = () => {
+    // Clear user data from localStorage
+    localStorage.removeItem('user')
+    // Close dropdown
+    dropdownOpen.value = false
+    // Redirect to login page
+    router.push('/login')
+  }
+  
+  // Lifecycle hooks for click outside listener
+  onMounted(() => {
+    document.addEventListener('click', closeDropdownOnClickOutside)
+  })
+  
+  onUnmounted(() => {
+    document.removeEventListener('click', closeDropdownOnClickOutside)
+  })
   </script>
   
   <style scoped>
@@ -84,10 +117,9 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: 100;
     font-family: 'Poppins', sans-serif;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s ease;
   }
   
   /* --- Left Section --- */
@@ -192,6 +224,7 @@
   /* --- Dropdown --- */
   .dropdown {
     position: relative;
+    z-index: 1000;
   }
   
   .dropdown-btn {
@@ -199,70 +232,62 @@
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 6px; /* Added padding for easier click */
-    display: flex; /* For aligning SVG */
+    padding: 6px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%; /* Make it circular */
-    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
-  }
-  
-  .dropdown-btn svg {
-    transition: transform 0.3s ease-in-out;
-  }
-  
-  .dropdown.open .dropdown-btn svg {
-    transform: rotate(180deg);
+    border-radius: 50%;
+    transition: all 0.3s ease;
   }
   
   .dropdown-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+  }
+  
+  .dropdown-btn svg {
+    transition: transform 0.3s ease;
+  }
+  
+  .dropdown[data-open="true"] .dropdown-btn svg {
+    transform: rotate(180deg);
   }
   
   .dropdown-menu {
     position: absolute;
     right: 0;
-    top: calc(100% + 10px); /* A bit more spacing */
+    top: 100%;
     background-color: var(--bg-dropdown);
     border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); /* Enhanced shadow */
-    min-width: 200px; /* Wider dropdown */
-    display: flex;
-    flex-direction: column;
-    z-index: 10;
-    overflow: hidden; /* For border-radius on items */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    min-width: 200px;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    z-index: 1000;
   }
   
   .dropdown-item {
     color: var(--text-secondary);
-    padding: 12px 20px; /* More padding */
+    padding: 0.75rem 1.5rem;
+    display: block;
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 400;
-    transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
     cursor: pointer;
-    display: block; /* Ensure full width clickable */
+    transition: all 0.2s ease;
   }
   
   .dropdown-item:hover {
     background-color: var(--hover-accent);
-    color: #fff;
-    padding-left: 25px; /* Slight indent on hover */
+    color: white;
+    padding-left: 2rem;
   }
   
   .dropdown-item.logout:hover {
-    background-color: #e74c3c; /* Red accent for logout */
-    color: #fff;
+    background-color: #e74c3c;
   }
   
   .dropdown-divider {
-    height: 1px;
-    margin: 8px 0;
-    overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0;
     border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   /* Dropdown Transition */

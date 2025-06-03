@@ -35,13 +35,17 @@
             <h3>{{ student.name }}</h3>
             <p class="course">{{ student.course }}</p>
             <p class="section">{{ student.yearAndSection }}</p>
-          </div>
-          <div class="card-actions">
-            <router-link :to="'/records?id=' + student.id" class="view-details">View Details</router-link>
+          </div>          <div class="card-actions">
+            <button @click="openIdModal(student.id)" class="view-details">View ID</button>
           </div>
         </div>
       </div>
     </div>
+    <StudentIdModal 
+      :show="showIdModal"
+      :student-id="selectedStudentId"
+      @close="closeIdModal"
+    />
   </div>
 </template>
 
@@ -49,6 +53,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import topNavbar from '../components/topNavbar.vue';
+import StudentIdModal from '../components/id.vue';
 
 const students = ref([]);
 const searchQuery = ref('');
@@ -96,6 +101,19 @@ async function fetchStudents() {
 onMounted(() => {
   fetchStudents();
 });
+
+const showIdModal = ref(false);
+const selectedStudentId = ref(null);
+
+function openIdModal(studentId) {
+  selectedStudentId.value = studentId;
+  showIdModal.value = true;
+}
+
+function closeIdModal() {
+  showIdModal.value = false;
+  selectedStudentId.value = null;
+}
 </script>
 
 <style scoped>

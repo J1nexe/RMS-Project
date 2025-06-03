@@ -63,6 +63,9 @@
                 <td>{{ formatDate(student.dateOfBirth) }}</td>
                 <td>{{ student.gender }}</td>
                 <td class="actions">
+                  <button class="action-btn view-id-btn" @click="openIdModal(student.id)">
+                    View ID
+                  </button>
                   <button @click="editStudent(student)" class="action-btn edit-btn">Edit</button>
                   <button @click="deleteStudent(student.id)" class="action-btn delete-btn">Delete</button>
                 </td>
@@ -173,6 +176,13 @@
             </form>
           </div>
         </div>
+
+        <!-- Student ID Modal -->
+        <StudentIdModal 
+          :show="showIdModal"
+          :student-id="selectedStudentId"
+          @close="closeIdModal"
+        />
       </div>
     </main>
   </div>
@@ -181,7 +191,8 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import axios from 'axios';
-import TopNavbar from '../components/topNavbar.vue'; // Adjusted path
+import TopNavbar from '../components/topNavbar.vue';
+import StudentIdModal from '../components/id.vue';
 
 // Enable debug mode for development
 const DEBUG_MODE = true;
@@ -212,6 +223,9 @@ const isSaving = ref(false);
 const initialLoadError = ref(false);
 const modalError = ref('');
 const apiError = ref('');
+
+const showIdModal = ref(false);
+const selectedStudentId = ref(null);
 
 // Add date formatting function
 function formatDate(dateString) {
@@ -480,6 +494,16 @@ async function deleteStudent(studentId) {
   }
 }
 
+function openIdModal(studentId) {
+  selectedStudentId.value = studentId;
+  showIdModal.value = true;
+}
+
+function closeIdModal() {
+  showIdModal.value = false;
+  selectedStudentId.value = null;
+}
+
 watch(searchQuery, () => {
   currentPage.value = 1;
 });
@@ -680,6 +704,14 @@ h1 {
   font-weight: 500;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.view-id-btn {
+  background: linear-gradient(135deg, #4A4AFF, #8C4AFF);
+}
+
+.view-id-btn:hover {
+  background: #3939CC;
 }
 
 .edit-btn {

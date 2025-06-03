@@ -6,9 +6,12 @@ class UserSerializer(serializers.ModelSerializer):
         model = UserLogin
         fields = '__all__'
 
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
 class studentRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = studentRecord
         fields = '__all__'
 
-    
